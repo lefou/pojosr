@@ -27,7 +27,7 @@
   <packaging>bundle</packaging>
   <name>Pojo Service Registry</name>
   <artifactId>de.kalpatec.pojosr.framework</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.1-SNAPSHOT</version>
   <dependencies>
 <dependency>
             <groupId>org.osgi</groupId>
