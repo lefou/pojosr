@@ -67,16 +67,8 @@ class PojoSRBundleContext implements BundleContext
 
     public void removeServiceListener(ServiceListener listener)
     {
-        ServiceListener wrapper = null;
-        synchronized (m_map)
-        {
-            wrapper = m_map.remove(listener);
-        }
-        if (wrapper != null)
-        {
-            m_dispatcher.removeListener(m_bundle, ServiceListener.class,
-                    wrapper);
-        }
+        m_dispatcher.removeListener(m_bundle, ServiceListener.class,
+                    listener);
     }
 
     public void removeFrameworkListener(FrameworkListener listener)
@@ -240,29 +232,10 @@ class PojoSRBundleContext implements BundleContext
         }
     }
 
-    private final Map<ServiceListener, ServiceListener> m_map = new HashMap<ServiceListener, ServiceListener>();
-
-    public void addServiceListener(final ServiceListener listener, String filter)
+     public void addServiceListener(final ServiceListener listener, String filter)
             throws InvalidSyntaxException
     {
-        ServiceListener wrapper = null;
-        synchronized (m_map)
-        {
-            wrapper = m_map.get(listener);
-            if (wrapper == null)
-            {
-                wrapper = new AllServiceListener()
-                {
-
-                    public void serviceChanged(ServiceEvent event)
-                    {
-                        listener.serviceChanged(event);
-                    }
-                };
-                m_map.put(listener, wrapper);
-            }
-        }
-        m_dispatcher.addListener(m_bundle, ServiceListener.class, wrapper,
+		 m_dispatcher.addListener(m_bundle, ServiceListener.class, listener,
                 filter == null ? null : FrameworkUtil.createFilter(filter));
     }
 

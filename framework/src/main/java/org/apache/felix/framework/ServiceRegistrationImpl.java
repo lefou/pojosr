@@ -18,9 +18,6 @@
  */
 package org.apache.felix.framework;
 
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.*;
 import org.apache.felix.framework.capabilityset.Attribute;
 import org.apache.felix.framework.capabilityset.Capability;
@@ -134,47 +131,6 @@ class ServiceRegistrationImpl implements ServiceRegistration
     //
     // Utility methods.
     //
-
-    /**
-     * This method determines if the class loader of the service object has
-     * access to the specified class.
-     * 
-     * @param clazz
-     *            the class to test for reachability.
-     * @return <tt>true</tt> if the specified class is reachable from the
-     *         service object's class loader, <tt>false</tt> otherwise.
-     **/
-    private boolean isClassAccessible(Class clazz)
-    {
-        // We need to see if the class loader of the service object has
-        // access to the specified class; however, we may not have a service
-        // object. If we only have service factory, then we will assume two
-        // different scenarios:
-        // 1. The service factory is provided by the bundle providing the
-        // service.
-        // 2. The service factory is NOT provided by the bundle providing
-        // the service.
-        // For case 1, we will use the class loader of the service factory
-        // to find the class. For case 2, we will assume we have an extender
-        // at work here and always return true, since we have no real way of
-        // knowing the wiring of the provider unless we actually get the
-        // service object, which defeats the lazy aspect of service factories.
-
-        // Case 2.
-        if ((m_factory != null)
-                && (m_factory.getClass().getClassLoader() instanceof BundleReference)
-                && !((BundleReference) m_factory.getClass().getClassLoader())
-                        .getBundle().equals(m_bundle))
-        {
-            return true;
-        }
-
-        // Case 1.
-        Class sourceClass = (m_factory != null) ? m_factory.getClass()
-                : m_svcObj.getClass();
-        return Util.loadClassUsingClass(sourceClass, clazz.getName()) == clazz;
-    }
-
     Object getProperty(String key)
     {
         return m_propMap.get(key);
@@ -210,33 +166,8 @@ class ServiceRegistrationImpl implements ServiceRegistration
         if (m_factory != null)
         {
             Object svcObj = null;
-            try
-            {
-                if (System.getSecurityManager() != null)
-                {
-                    svcObj = AccessController
-                            .doPrivileged(new ServiceFactoryPrivileged(
-                                    acqBundle, null));
-                }
-                else
-                {
-                    svcObj = getFactoryUnchecked(acqBundle);
-                }
-            }
-            catch (PrivilegedActionException ex)
-            {
-                if (ex.getException() instanceof ServiceException)
-                {
-                    throw (ServiceException) ex.getException();
-                }
-                else
-                {
-                    throw new ServiceException("Service factory exception: "
-                            + ex.getException().getMessage(),
-                            ServiceException.FACTORY_EXCEPTION,
-                            ex.getException());
-                }
-            }
+            svcObj = getFactoryUnchecked(acqBundle);
+            
             return svcObj;
         }
         else
@@ -253,15 +184,7 @@ class ServiceRegistrationImpl implements ServiceRegistration
         {
             try
             {
-                if (System.getSecurityManager() != null)
-                {
-                    AccessController.doPrivileged(new ServiceFactoryPrivileged(
-                            relBundle, svcObj));
-                }
-                else
-                {
-                    ungetFactoryUnchecked(relBundle, svcObj);
-                }
+                ungetFactoryUnchecked(relBundle, svcObj);
             }
             catch (Exception ex)
             {
@@ -318,24 +241,17 @@ class ServiceRegistrationImpl implements ServiceRegistration
         {
             for (int i = 0; i < m_classes.length; i++)
             {
-                Class clazz = Util.loadClassUsingClass(svcObj.getClass(),
-                        m_classes[i]);
-                if ((clazz == null)
-                        || !clazz.isAssignableFrom(svcObj.getClass()))
+                try {
+                if (!Class.forName(m_classes[i]).isAssignableFrom(svcObj.getClass()))
                 {
-                    if (clazz == null)
-                    {
-                        throw new ServiceException(
-                                "Service cannot be cast due to missing class: "
-                                        + m_classes[i],
-                                ServiceException.FACTORY_ERROR);
-                    }
-                    else
-                    {
-                        throw new ServiceException("Service cannot be cast: "
-                                + m_classes[i], ServiceException.FACTORY_ERROR);
-                    }
+                    throw new ServiceException(
+                            "Service cannot be cast: " + m_classes[i],
+                            ServiceException.FACTORY_ERROR);
                 }
+				} catch (ClassNotFoundException ex) {
+				   throw new ServiceException("Service is missing class: " + m_classes[i], ServiceException.FACTORY_ERROR);
+				} 
+
             }
         }
         else
@@ -351,35 +267,7 @@ class ServiceRegistrationImpl implements ServiceRegistration
         m_factory.ungetService(bundle, this, svcObj);
     }
 
-    /**
-     * This simple class is used to ensure that when a service factory is
-     * called, that no other classes on the call stack interferes with the
-     * permissions of the factory itself.
-     **/
-    private class ServiceFactoryPrivileged implements PrivilegedExceptionAction
-    {
-        private Bundle m_bundle = null;
-        private Object m_svcObj = null;
-
-        public ServiceFactoryPrivileged(Bundle bundle, Object svcObj)
-        {
-            m_bundle = bundle;
-            m_svcObj = svcObj;
-        }
-
-        public Object run() throws Exception
-        {
-            if (m_svcObj == null)
-            {
-                return getFactoryUnchecked(m_bundle);
-            }
-            else
-            {
-                ungetFactoryUnchecked(m_bundle, m_svcObj);
-            }
-            return null;
-        }
-    }
+    
 
     //
     // ServiceReference implementation

@@ -121,7 +121,7 @@ public class PojoSR implements PojoServiceRegistry
                         t.printStackTrace();
                     }
                 }
-                System.exit(0);
+                m_dispatcher.shutdown();
             }
         };
         m_symbolicNameToBundle.put(b.getSymbolicName(), b);

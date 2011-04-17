@@ -18,8 +18,6 @@
  */
 package org.apache.felix.framework.util;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
@@ -223,11 +221,11 @@ public class EventDispatcher
             else if (clazz == ServiceListener.class)
             {
                 // Remember security context for filtering service events.
-                Object sm = System.getSecurityManager();
+               /* Object sm = System.getSecurityManager();
                 if (sm != null)
                 {
                     acc = ((SecurityManager) sm).getSecurityContext();
-                }
+                }*/
                 // We need to create a Set for keeping track of matching service
                 // registrations so we can fire ServiceEvent.MODIFIED_ENDMATCH
                 // events. We need a Set even if filter is null, since the
@@ -769,22 +767,8 @@ public class EventDispatcher
         if ((bundle.getState() == Bundle.STARTING)
                 || (bundle.getState() == Bundle.ACTIVE))
         {
-            if (System.getSecurityManager() != null)
-            {
-                AccessController.doPrivileged(new PrivilegedAction()
-                {
-                    public Object run()
-                    {
-                        ((FrameworkListener) l)
-                                .frameworkEvent((FrameworkEvent) event);
-                        return null;
-                    }
-                });
-            }
-            else
-            {
-                ((FrameworkListener) l).frameworkEvent((FrameworkEvent) event);
-            }
+                            ((FrameworkListener) l).frameworkEvent((FrameworkEvent) event);
+            
         }
     }
 
@@ -802,21 +786,7 @@ public class EventDispatcher
                 || ((bundle.getState() == Bundle.STARTING) || (bundle
                         .getState() == Bundle.ACTIVE)))
         {
-            if (System.getSecurityManager() != null)
-            {
-                AccessController.doPrivileged(new PrivilegedAction()
-                {
-                    public Object run()
-                    {
-                        ((BundleListener) l).bundleChanged((BundleEvent) event);
-                        return null;
-                    }
-                });
-            }
-            else
-            {
-                ((BundleListener) l).bundleChanged((BundleEvent) event);
-            }
+            ((BundleListener) l).bundleChanged((BundleEvent) event);
         }
     }
 
@@ -839,21 +809,6 @@ public class EventDispatcher
         ServiceReference ref = ((ServiceEvent) event).getServiceReference();
 
         boolean hasPermission = true;
-        Object sm = System.getSecurityManager();
-        if ((acc != null) && (sm != null))
-        {
-            try
-            {
-                ServicePermission perm = new ServicePermission(ref,
-                        ServicePermission.GET);
-                ((SecurityManager) sm).checkPermission(perm, acc);
-            }
-            catch (Exception ex)
-            {
-                hasPermission = false;
-            }
-        }
-
         if (hasPermission)
         {
             // Dispatch according to the filter.
@@ -863,28 +818,8 @@ public class EventDispatcher
 
             if (matched)
             {
-                if ((l instanceof AllServiceListener)
-                        || Util.isServiceAssignable(bundle,
-                                ((ServiceEvent) event).getServiceReference()))
-                {
-                    if (System.getSecurityManager() != null)
-                    {
-                        AccessController.doPrivileged(new PrivilegedAction()
-                        {
-                            public Object run()
-                            {
-                                ((ServiceListener) l)
-                                        .serviceChanged((ServiceEvent) event);
-                                return null;
-                            }
-                        });
-                    }
-                    else
-                    {
-                        ((ServiceListener) l)
+                ((ServiceListener) l)
                                 .serviceChanged((ServiceEvent) event);
-                    }
-                }
             }
             // We need to send an MODIFIED_ENDMATCH event if the listener
             // matched previously.
@@ -895,21 +830,8 @@ public class EventDispatcher
                     final ServiceEvent se = new ServiceEvent(
                             ServiceEvent.MODIFIED_ENDMATCH,
                             ((ServiceEvent) event).getServiceReference());
-                    if (System.getSecurityManager() != null)
-                    {
-                        AccessController.doPrivileged(new PrivilegedAction()
-                        {
-                            public Object run()
-                            {
-                                ((ServiceListener) l).serviceChanged(se);
-                                return null;
-                            }
-                        });
-                    }
-                    else
-                    {
-                        ((ServiceListener) l).serviceChanged(se);
-                    }
+                   ((ServiceListener) l).serviceChanged(se);
+                    
                 }
             }
         }

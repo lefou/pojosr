@@ -468,4 +468,11 @@ class PojoSRBundle implements Bundle
         return m_version;
     }
 
+	public boolean equals(Object o) 
+	{
+	     if (o instanceof PojoSRBundle) {
+		     return ((PojoSRBundle) o).m_id == m_id;
+		 }
+		 return false;
+	}
 }

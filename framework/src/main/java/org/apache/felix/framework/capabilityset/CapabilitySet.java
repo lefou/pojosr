@@ -519,7 +519,9 @@ public class CapabilitySet
             else
             {
                 Constructor ctor = lhs.getClass().getConstructor(STRING_CLASS);
-                ctor.setAccessible(true);
+                try {
+				    ctor.setAccessible(true);
+			    } catch (Exception ex) {} 
                 rhs = ctor.newInstance(new Object[] { rhsString });
             }
         }
