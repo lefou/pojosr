@@ -6,16 +6,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/osgi.cmpn-4.2.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.apache.felix.webconsole-3.1.9-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.apache.felix.shell-1.4.2.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/appengine-api-1.0-sdk-1.4.3.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/appengine-api-labs-1.4.3.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/appengine-jsr107cache-1.4.3.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/datanucleus-appengine-1.0.8.final.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/datanucleus-core-1.1.5.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/datanucleus-jpa-1.1.5.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/geronimo-jpa_3.0_spec-1.1.1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/geronimo-jta_1.1_spec-1.1.1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jdo2-api-2.3-eb.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jsr107cache-1.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.apache.felix.http.bridge-2.2.0.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.apache.felix.configadmin-1.2.9-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/kxml2-2.2.2.jar"/>
