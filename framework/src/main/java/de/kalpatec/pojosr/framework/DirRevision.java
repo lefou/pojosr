@@ -52,13 +52,17 @@ class DirRevision extends Revision
     {
         try
         {
-            return (new File(m_file, entryName)).toURL();
+            File file = (new File(m_file, entryName));
+            if (file.exists()) {
+                return file.toURL();
+            } 
         }
         catch (MalformedURLException e)
         {
             e.printStackTrace();
-            return null;
         }
+            return null;
+
     }
 
 }

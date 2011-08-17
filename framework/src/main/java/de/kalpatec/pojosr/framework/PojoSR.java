@@ -293,9 +293,18 @@ public class PojoSR implements PojoServiceRegistry
                     version = "0";
                 }
                 Version osgiVersion = Version.parseVersion(version);
-                if ((bundleHeaders.get(Constants.BUNDLE_SYMBOLICNAME) == null)
-                        || !m_symbolicNameToBundle.containsKey(bundleHeaders
-                                .get(Constants.BUNDLE_SYMBOLICNAME)))
+                String sym = bundleHeaders.get(Constants.BUNDLE_SYMBOLICNAME);
+                    if (sym != null)
+                    {
+                        int idx = sym.indexOf(';');
+                        if (idx > 0)
+                        {
+                            sym = sym.substring(0, idx);
+                        }
+                    }
+
+                if ((sym == null)
+                        || !m_symbolicNameToBundle.containsKey( sym ))
                 {
                     // TODO: framework - support multiple versions
                     Bundle bundle = new PojoSRBundle(r, bundleHeaders,
@@ -303,9 +312,9 @@ public class PojoSR implements PojoServiceRegistry
                             m_dispatcher,
                             bundleHeaders.get(Constants.BUNDLE_ACTIVATOR),
                             m_bundles.size(),
-                            bundleHeaders.get(Constants.BUNDLE_SYMBOLICNAME),
+                            sym,
                             m_bundles, desc.getClassLoader());
-                    if (bundleHeaders.get(Constants.BUNDLE_SYMBOLICNAME) != null)
+                    if (sym != null)
                     {
                         m_symbolicNameToBundle.put(bundle.getSymbolicName(),
                                 bundle);
@@ -319,9 +328,6 @@ public class PojoSR implements PojoServiceRegistry
         {
             try
             {
-                System.out.println("Starting: "
-                        + m_bundles.get(i).getHeaders()
-                                .get(Constants.BUNDLE_SYMBOLICNAME));
                 m_bundles.get(i).start();
             }
             catch (Exception e)

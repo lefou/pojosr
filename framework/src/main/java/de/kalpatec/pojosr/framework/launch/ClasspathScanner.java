@@ -64,16 +64,6 @@ public class ClasspathScanner
                 if ((filter == null)
                         || filter.match(new MapToDictionary(headers)))
                 {
-                    String sym = headers.get(Constants.BUNDLE_SYMBOLICNAME);
-                    if (sym != null)
-                    {
-                        int idx = sym.indexOf(';');
-                        if (idx > 0)
-                        {
-                            headers.put(Constants.BUNDLE_SYMBOLICNAME,
-                                    sym.substring(0, idx));
-                        }
-                    }
                     bundles.add(new BundleDescriptor(getClass()
                             .getClassLoader(), getParentURL(manifestURL),
                             headers));

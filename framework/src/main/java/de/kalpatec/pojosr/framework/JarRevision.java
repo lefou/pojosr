@@ -18,7 +18,7 @@
  */
 package de.kalpatec.pojosr.framework;
 
-import java.net.MalformedURLException;
+import java.io.*;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Map;
@@ -63,13 +63,17 @@ class JarRevision extends Revision
     {
         try
         {
-            return new URL("jar:" + m_url.toExternalForm() + "!/" + entryName);
+            if (m_jar.getJarEntry(entryName) != null) {
+            URL result = new URL("jar:" + m_url.toExternalForm() + "!/" + entryName);
+            return result;
+            }
         }
-        catch (MalformedURLException e)
+        catch (IOException e)
         {
             e.printStackTrace();
-            return null;
         }
+            return null;
+
     }
 
 }
