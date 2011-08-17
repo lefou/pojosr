@@ -194,7 +194,7 @@ class PojoSRBundle implements Bundle
 
     public Dictionary getHeaders()
     {
-        return new MapToDictionary(m_manifest);
+        return getHeaders(Locale.getDefault().toString());
     }
 
     public long getBundleId()
