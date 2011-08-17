@@ -1,9 +1,5 @@
 package net.luminis.clockreader;
 
-import net.luminis.clock.Clock;
-
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 
@@ -12,12 +8,7 @@ import org.eclipse.equinox.app.IApplicationContext;
  */
 public class Application implements IApplication {
 	public Object start(IApplicationContext context) throws Exception {
-		for (IConfigurationElement e : Platform.getExtensionRegistry().getConfigurationElementsFor("net.luminis.clockreader.clock")) {
-			Object clock = e.createExecutableExtension("class");
-			if (clock instanceof Clock) {
-				System.out.println("According to " + clock + ", it is " + ((Clock) clock).time());
-			}
-		}
+		System.out.println("Starting application.");
 		return IApplication.EXIT_OK;
 	}
 
