@@ -8,7 +8,8 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
-	public void start(BundleContext bundleContext) throws Exception {
+	public void start(final BundleContext bundleContext) throws Exception {
+		
 		for (IConfigurationElement e : Platform.getExtensionRegistry().getConfigurationElementsFor("net.luminis.clockreader.clock")) {
 			Object clock = e.createExecutableExtension("class");
 			if (clock instanceof Clock) {

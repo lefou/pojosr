@@ -6,7 +6,7 @@
    <extension
          id="application"
          point="org.eclipse.core.runtime.applications">
-      <application>
+         <application>
          <run
                class="net.luminis.clockreader.Application">
          </run>
