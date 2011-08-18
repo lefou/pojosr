@@ -256,7 +256,12 @@ public class PojoSR implements PojoServiceRegistry
 
         if (scan != null)
         {
-            for (BundleDescriptor desc : scan)
+            startBundles(scan);
+		}
+    }
+	
+	public void startBundles(List<BundleDescriptor> scan) throws Exception {
+	 for (BundleDescriptor desc : scan)
             {
                 URL u = new URL(desc.getUrl().toExternalForm()
                         + "META-INF/MANIFEST.MF");
@@ -322,7 +327,7 @@ public class PojoSR implements PojoServiceRegistry
                 }
 
             }
-        }
+        
 
         for (long i = 1; i < m_bundles.size(); i++)
         {
@@ -330,13 +335,14 @@ public class PojoSR implements PojoServiceRegistry
             {
                 m_bundles.get(i).start();
             }
-            catch (Exception e)
+            catch (Throwable e)
             {
                 System.out.println("Unable to start bundle: " + i);
                 e.printStackTrace();
             }
         }
-    }
+
+	}
 
     public static void main(String[] args) throws Exception
     {
