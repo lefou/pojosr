@@ -235,8 +235,11 @@ public class PojoSR implements PojoServiceRegistry
                     public Bundle[] getBundles(String symbolicName,
                             String versionRange)
                     {
-                        return new Bundle[] { m_symbolicNameToBundle
-                                .get(symbolicName) };
+					    Bundle result = m_symbolicNameToBundle.get(symbolicName);
+						if (result != null) {
+							return new Bundle[] {result};
+						}
+						return null;
                     }
 
                     public int getBundleType(Bundle bundle)
