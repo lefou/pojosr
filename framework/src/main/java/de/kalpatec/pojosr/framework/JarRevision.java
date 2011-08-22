@@ -63,6 +63,9 @@ class JarRevision extends Revision
     {
         try
         {
+		    if("/".equals(entryName) || "".equals(entryName) || " ".equals(entryName)) {
+			    return new URL("jar:" + m_url.toExternalForm() + "!/");
+			}
             if (m_jar.getJarEntry(entryName) != null) {
             URL result = new URL("jar:" + m_url.toExternalForm() + "!/" + entryName);
             return result;

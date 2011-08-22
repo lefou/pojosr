@@ -79,6 +79,7 @@ public class PojoSR implements PojoServiceRegistry
         headers.put(Constants.BUNDLE_VERSION, "0.0.1");
         headers.put(Constants.BUNDLE_NAME, "System Bundle");
         headers.put(Constants.BUNDLE_MANIFESTVERSION, "2");
+		headers.put(Constants.BUNDLE_VENDOR, "kalpatec");
         final Bundle b = new PojoSRBundle(new Revision()
         {
 
