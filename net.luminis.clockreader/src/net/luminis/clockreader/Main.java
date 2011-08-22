@@ -2,97 +2,119 @@ package net.luminis.clockreader;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.ServiceLoader;
+import java.util.Locale;
 
+import org.eclipse.core.runtime.adaptor.LocationManager;
+import org.eclipse.core.runtime.internal.adaptor.EclipseAdaptorHook;
 import org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher;
+import org.eclipse.core.runtime.internal.adaptor.EclipseLogHook;
+import org.eclipse.osgi.baseadaptor.BaseAdaptor;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.runnable.ApplicationLauncher;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.log.LogEntry;
+import org.osgi.service.log.LogListener;
 
+import de.kalpatec.pojosr.framework.PojoServiceRegistryFactoryImpl;
 import de.kalpatec.pojosr.framework.launch.BundleDescriptor;
 import de.kalpatec.pojosr.framework.launch.ClasspathScanner;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
-import de.kalpatec.pojosr.framework.launch.PojoServiceRegistryFactory;
 
 public class Main {
-	public static void main(String[] args) throws Exception {
+	public static void main(final String[] args) throws Exception {
 		List<BundleDescriptor> scan = new ClasspathScanner()
-				.scanForBundles("(&(Bundle-SymbolicName=*)(!(|(Bundle-SymbolicName=org.eclipse.osgi*)(Bundle-SymbolicName=org.eclipse.update*))))");
-		ServiceLoader<PojoServiceRegistryFactory> loader = ServiceLoader.load(PojoServiceRegistryFactory.class);
-
-		PojoServiceRegistry reg = loader.iterator().next().newPojoServiceRegistry(new HashMap());
+				.scanForBundles("(Bundle-SymbolicName=*)");
+		
+		PojoServiceRegistry reg = new PojoServiceRegistryFactoryImpl().newPojoServiceRegistry(new HashMap());
 		BundleContext context = reg.getBundleContext();
 		context.registerService(EnvironmentInfo.class.getName(),
 				new EnvironmentInfo() {
 
-					@Override
+					
 					public String setProperty(String key, String value) {
-						// TODO Auto-generated method stub
-						return null;
+						return System.setProperty(key, value);
 					}
 
-					@Override
+					
 					public boolean inDevelopmentMode() {
 						// TODO Auto-generated method stub
-						return true;
+						return false;
 					}
 
-					@Override
+					
 					public boolean inDebugMode() {
 						// TODO Auto-generated method stub
 						return false;
 					}
 
-					@Override
+					
 					public String getWS() {
-						// TODO Auto-generated method stub
-						return null;
+						return System.getProperty("osgi.ws");
 					}
 
-					@Override
+					
 					public String getProperty(String key) {
 						// TODO Auto-generated method stub
-						return null;
+						return System.getProperty(key);
 					}
 
-					@Override
+					
 					public String getOSArch() {
-						// TODO Auto-generated method stub
-						return null;
+						return System.getProperty("osgi.arch");
 					}
 
-					@Override
+					
 					public String getOS() {
-						// TODO Auto-generated method stub
-						return null;
+						return System.getProperty("osgi.os");
 					}
 
-					@Override
+					
 					public String[] getNonFrameworkArgs() {
 						// TODO Auto-generated method stub
-						return null;
+						return args;
 					}
 
-					@Override
+					
 					public String getNL() {
-						// TODO Auto-generated method stub
-						return null;
+						return System.getProperty("osgi.nl");
 					}
 
-					@Override
+					
 					public String[] getFrameworkArgs() {
-						// TODO Auto-generated method stub
-						return null;
+						return args;
 					}
 
-					@Override
+					
 					public String[] getCommandLineArgs() {
-						// TODO Auto-generated method stub
-						return null;
+						return args;
 					}
 				}, null);
+		reg.registerService(LogListener.class.getName(), new LogListener() {
+			
+			public void logged(LogEntry arg0) {
+				System.out.println(arg0.getMessage());
+				if (arg0.getException() != null) {
+					arg0.getException().printStackTrace();
+				}
+			}
+		}, null);
+		LocationManager.initializeLocations();
+		EclipseLogHook logH = new EclipseLogHook();
+		EclipseAdaptorHook hook = new EclipseAdaptorHook();
+		BaseAdaptor adaptor = new BaseAdaptor(new String[0]);
+		adaptor.frameworkStart(reg.getBundleContext());
+		adaptor.initializeStorage();
+		hook.initialize(adaptor);
+		logH.initialize(adaptor);
+		try {
+		hook.frameworkStart(reg.getBundleContext());
+		} catch (Exception ex) {
+			// this is good enough
+		}
+
+		logH.frameworkStart(context);
 		reg.startBundles(scan);
-		EclipseAppLauncher appLauncher = new EclipseAppLauncher(context, true,
+		EclipseAppLauncher appLauncher = new EclipseAppLauncher(context, false,
 				true, null);
 		context.registerService(ApplicationLauncher.class.getName(),
 				appLauncher, null);
