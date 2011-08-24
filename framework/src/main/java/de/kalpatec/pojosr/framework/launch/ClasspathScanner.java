@@ -46,6 +46,7 @@ public class ClasspathScanner
         Filter filter = (filterString != null) ? FrameworkUtil
                 .createFilter(filterString) : null;
         List<BundleDescriptor> bundles = new ArrayList<BundleDescriptor>();
+		byte[] bytes = new byte[1024 * 64];
         for (Enumeration<URL> e = getClass().getClassLoader().getResources(
                 "META-INF/MANIFEST.MF"); e.hasMoreElements();)
         {
@@ -54,13 +55,93 @@ public class ClasspathScanner
             try
             {
                 input = manifestURL.openStream();
-                Attributes attributes = new Manifest(input).getMainAttributes();
+				int size = (int) input.available();
+				if (size > bytes.length)
+				{
+					bytes = new byte[size];
+				}
+
+				int i = input.read(bytes);
+				while (i < size)
+				{
+					i += input.read(bytes, i, bytes.length - i);
+				}
+
+				// Now parse the main attributes. The idea is to do that
+				// without creating new byte arrays. Therefore, we read through
+				// the manifest bytes inside the bytes array and write them back into
+				// the same array unless we don't need them (e.g., \r\n and \n are skipped).
+				// That allows us to create the strings from the bytes array without the skipped
+				// chars. We stopp as soon as we see a blankline as that denotes that the main
+				//attributes part is finished.
+				String key = null;
+				int last = 0;
+				int current = 0;
+		
                 Map<String, String> headers = new HashMap<String, String>();
-                for (Object key : attributes.keySet())
-                {
-                    headers.put(key.toString(),
-                            attributes.getValue(key.toString()));
-                }
+				for (i = 0; i < size; i++)
+				{
+					// skip \r and \n if it is follows by another \n
+					// (we catch the blank line case in the next iteration)
+					if (bytes[i] == '\r')
+					{
+						if ((i + 1 < size) && (bytes[i + 1] == '\n'))
+						{
+							continue;
+						}
+					}
+					if (bytes[i] == '\n')
+					{
+						if ((i + 1 < size) && (bytes[i + 1] == ' '))
+						{
+							i++;
+							continue;
+						}
+					}
+					// If we don't have a key yet and see the first : we parse it as the key
+					// and skip the :<blank> that follows it.
+					if ((key == null) && (bytes[i] == ':'))
+					{
+						key = new String(bytes, last, (current - last), "UTF-8");
+						if ((i + 1 < size) && (bytes[i + 1] == ' '))
+						{
+							last = current + 1;
+							continue;
+						}
+						else
+						{
+							throw new Exception(
+								"Manifest error: Missing space separator - " + key);
+						}
+					}
+					// if we are at the end of a line
+					if (bytes[i] == '\n')
+					{
+						// and it is a blank line stop parsing (main attributes are done)
+						if ((last == current) && (key == null))
+						{
+							break;
+						}
+						// Otherwise, parse the value and add it to the map (we throw an
+						// exception if we don't have a key or the key already exist.
+						String value = new String(bytes, last, (current - last), "UTF-8");
+						if (key == null)
+						{
+							throw new Exception("Manifst error: Missing attribute name - " + value);
+						}
+						else if (headers.put(key, value) != null)
+						{
+							throw new Exception("Manifst error: Duplicate attribute name - " + key);
+						}
+						last = current;
+						key = null;
+					}
+					else
+					{
+						// write back the byte if it needs to be included in the key or the value.
+						bytes[current++] = bytes[i];
+					}
+				}	
                 if ((filter == null)
                         || filter.match(new MapToDictionary(headers)))
                 {

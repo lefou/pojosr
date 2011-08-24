@@ -19,10 +19,13 @@
 package de.kalpatec.pojosr.framework;
 
 import java.io.*;
+import java.net.URLStreamHandler;
+import java.net.URLConnection;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
 import java.util.zip.ZipEntry;
 
 import org.apache.felix.framework.util.StringMap;
@@ -32,11 +35,13 @@ class JarRevision extends Revision
     private final long m_lastModified;
     private final JarFile m_jar;
     private final URL m_url;
+	private final String m_urlString;
 
     public JarRevision(JarFile jar, URL url, long lastModified)
     {
         m_jar = jar;
         m_url = url;
+		m_urlString =  m_url.toExternalForm();
         if (lastModified > 0)
         {
             m_lastModified = lastModified;
@@ -66,10 +71,36 @@ class JarRevision extends Revision
 		    if("/".equals(entryName) || "".equals(entryName) || " ".equals(entryName)) {
 			    return new URL("jar:" + m_url.toExternalForm() + "!/");
 			}
-            if (m_jar.getJarEntry(entryName) != null) {
-            URL result = new URL("jar:" + m_url.toExternalForm() + "!/" + entryName);
-            return result;
+            if (entryName != null)
+			{ 
+				entryName = ((entryName.startsWith("/")) ? entryName.substring(1) : entryName);
+				final JarEntry entry = m_jar.getJarEntry(entryName);
+				if ( entry != null) {
+								 URL result = new URL("jar", null, -1, m_urlString + "!/" + entryName, new URLStreamHandler() {
+									
+									
+									protected URLConnection openConnection(URL u) throws IOException {
+										return new URLConnection(u) {
+											
+											
+											public void connect() throws IOException {
+												// TODO Auto-generated method stub
+												
+											}
+											
+											public InputStream getInputStream()
+													throws IOException {
+												return m_jar.getInputStream(entry);
+											}
+										};
+									}
+								});
+								//System.out.println(result);
+								return result;
+            /*URL result = new URL("jar:" + m_url.toExternalForm() + "!/" + entryName);
+            return result;*/
             }
+			}
         }
         catch (IOException e)
         {

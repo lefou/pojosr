@@ -236,7 +236,7 @@ public class PojoSR implements PojoServiceRegistry
                     public Bundle[] getBundles(String symbolicName,
                             String versionRange)
                     {
-					    Bundle result = m_symbolicNameToBundle.get(symbolicName);
+					    Bundle result = m_symbolicNameToBundle.get((symbolicName != null) ? symbolicName.trim() : symbolicName);
 						if (result != null) {
 							return new Bundle[] {result};
 						}
@@ -294,14 +294,13 @@ public class PojoSR implements PojoServiceRegistry
                     }
                 }
                 Map<String, String> bundleHeaders = desc.getHeaders();
-                String version = bundleHeaders.get(Constants.BUNDLE_VERSION);
-                if (version == null
-                        || !version
-                                .matches("\\d+(\\.\\d+(\\.\\d+(\\.[-_a-zA-Z0-9]+)?)?)?"))
-                {
-                    version = "0";
-                }
-                Version osgiVersion = Version.parseVersion(version);
+				Version osgiVersion = null;
+				try {
+					osgiVersion = Version.parseVersion(bundleHeaders.get(Constants.BUNDLE_VERSION));
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					osgiVersion = Version.emptyVersion;
+				}
                 String sym = bundleHeaders.get(Constants.BUNDLE_SYMBOLICNAME);
                     if (sym != null)
                     {
@@ -310,6 +309,7 @@ public class PojoSR implements PojoServiceRegistry
                         {
                             sym = sym.substring(0, idx);
                         }
+						sym = sym.trim();
                     }
 
                 if ((sym == null)

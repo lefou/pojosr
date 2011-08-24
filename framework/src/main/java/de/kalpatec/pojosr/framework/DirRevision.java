@@ -52,10 +52,12 @@ class DirRevision extends Revision
     {
         try
         {
-            File file = (new File(m_file, entryName));
+		    if (entryName != null) {
+            File file = (new File(m_file, (entryName.startsWith("/")) ? entryName.substring(1) : entryName));
             if (file.exists()) {
                 return file.toURL();
             } 
+			}
         }
         catch (MalformedURLException e)
         {

@@ -240,7 +240,7 @@ class PojoSRBundle implements Bundle
         Map result = null;
 
         // Spec says empty local returns raw headers.
-        if (locale.length() == 0)
+        if ((locale == null) || (locale.length() == 0))
         {
             result = new StringMap(m_manifest, false);
         }
