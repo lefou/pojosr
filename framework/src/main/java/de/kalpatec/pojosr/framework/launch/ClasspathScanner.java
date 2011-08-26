@@ -43,7 +43,7 @@ public class ClasspathScanner
         Filter filter = (filterString != null) ? FrameworkUtil
                 .createFilter(filterString) : null;
         List<BundleDescriptor> bundles = new ArrayList<BundleDescriptor>();
-		byte[] bytes = new byte[1024 * 64];
+		byte[] bytes = new byte[1024 * 1024 * 2];
         for (Enumeration<URL> e = getClass().getClassLoader().getResources(
                 "META-INF/MANIFEST.MF"); e.hasMoreElements();)
         {
@@ -52,16 +52,14 @@ public class ClasspathScanner
             try
             {
                 input = manifestURL.openStream();
-				int size = (int) input.available();
-				if (size > bytes.length)
-				{
-					bytes = new byte[size];
-				}
-
-				int i = input.read(bytes);
-				while (i < size)
-				{
-					i += input.read(bytes, i, bytes.length - i);
+				int size = 0;
+				for (int i = input.read(bytes); i != -1; i = input.read(bytes, size, bytes.length - size)) {
+					size += i;
+					if (size == bytes.length) {
+					     byte[] tmp = new byte[size * 2];
+						 System.arraycopy(bytes, 0, tmp, 0, bytes.length);
+						 bytes = tmp;
+					}
 				}
 
 				// Now parse the main attributes. The idea is to do that
@@ -76,7 +74,7 @@ public class ClasspathScanner
 				int current = 0;
 		
                 Map<String, String> headers = new HashMap<String, String>();
-				for (i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					// skip \r and \n if it is follows by another \n
 					// (we catch the blank line case in the next iteration)

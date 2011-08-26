@@ -73,26 +73,8 @@ class JarRevision extends Revision
 				entryName = ((entryName.startsWith("/")) ? entryName.substring(1) : entryName);
 				final JarEntry entry = m_jar.getJarEntry(entryName);
 				if ( entry != null) {
-								 URL result = new URL("jar", null, -1, m_urlString + "!/" + entryName, new URLStreamHandler() {
-									
-									
-									protected URLConnection openConnection(URL u) throws IOException {
-										return new URLConnection(u) {
-											
-											
-											public void connect() throws IOException {
-												// TODO Auto-generated method stub
-												
-											}
-											
-											public InputStream getInputStream()
-													throws IOException {
-												return m_jar.getInputStream(entry);
-											}
-										};
-									}
-								});
-								return result;
+								 URL result = new URL("jar:" +  m_urlString + "!/" + entryName);
+								 return result;
             }
 			}
         }
