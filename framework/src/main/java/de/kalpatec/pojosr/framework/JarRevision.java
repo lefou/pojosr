@@ -66,15 +66,36 @@ class JarRevision extends Revision
         try
         {
 		    if("/".equals(entryName) || "".equals(entryName) || " ".equals(entryName)) {
-			    return new URL("jar:" + m_url.toExternalForm() + "!/");
+			    return new URL("jar:" + m_urlString + "!/");
 			}
             if (entryName != null)
 			{ 
-				entryName = ((entryName.startsWith("/")) ? entryName.substring(1) : entryName);
-				final JarEntry entry = m_jar.getJarEntry(entryName);
+				final String target = ((entryName.startsWith("/")) ? entryName.substring(1) : entryName);
+				final JarEntry entry = m_jar.getJarEntry(target);
 				if ( entry != null) {
-								 URL result = new URL("jar:" +  m_urlString + "!/" + entryName);
-								 return result;
+								 URL result = new URL(null, "jar:" + m_urlString + "!/" + target, new URLStreamHandler() {
+									
+									
+									protected URLConnection openConnection(final URL u) throws IOException {
+										return new URLConnection(u) {
+											
+											
+											public void connect() throws IOException {
+												// TODO Auto-generated method stub
+												
+											}
+											
+											public InputStream getInputStream()
+													throws IOException {
+													
+												String extF = u.toExternalForm();
+												
+												return m_jar.getInputStream(extF.endsWith(target) ? entry : m_jar.getJarEntry(extF.substring(extF.indexOf('!') + 2)));
+											}
+										};
+									}
+								});
+								return result;
             }
 			}
         }
