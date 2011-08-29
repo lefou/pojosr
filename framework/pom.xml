@@ -36,8 +36,8 @@
   </licenses>
   <scm>
     <url>http://pojosr.googlecode.com/svn/trunk/</url>
-    <connection>scm:svn:http://pojosr.googlecode.com/svn/trunk/</connection>
-    <developerConnection>scm:svn:https://pojosr.googlecode.com/svn/trunk/</developerConnection>
+    <connection>scm:svn:http://pojosr.googlecode.com/svn/trunk/framework/</connection>
+    <developerConnection>scm:svn:https://pojosr.googlecode.com/svn/trunk/framework/</developerConnection>
   </scm>
   <developers>
     <developer>
@@ -62,6 +62,13 @@
   <pluginRepositories></pluginRepositories>
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <tagBase>https://pojosr.googlecode.com/svn/tags</tagBase>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
