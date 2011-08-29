@@ -24,7 +24,7 @@
   <name>Pojo Service Registry</name>
   <groupId>com.googlecode.pojosr</groupId>
   <artifactId>de.kalpatec.pojosr.framework</artifactId>
-  <version>0.1.5-SNAPSHOT</version>
+  <version>0.1.2-SNAPSHOT</version>
   <description>A service registry that enables OSGi style service registry programs without using an OSGi framework.</description>
   <url>http://pojosr.googlecode.com/</url>
   <licenses>
@@ -123,5 +123,20 @@
         </configuration>
       </plugin>
     </plugins>
+     <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+      <directory>.</directory>
+      <targetPath>META-INF</targetPath>
+      <includes>
+        <include>LICENSE*</include>
+        <include>NOTICE*</include>
+        <include>DEPENDENCIES*</include>
+      </includes>
+    </resource>
+    </resources> 
   </build>
 </project>
