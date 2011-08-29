@@ -270,6 +270,6 @@ public class Main {
 		}
 		}.start();
 		appLauncher.start(null);
-		reg.getBundleContext().getBundle(0).stop();
+		//reg.getBundleContext().getBundle(0).stop();
 	}
 }

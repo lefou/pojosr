@@ -8,5 +8,5 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.luminis.clockreader.Main"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="net.luminis.clockreader"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Declipse.application=net.luminis.clockreader.application"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Declipse.application=net.luminis.clockreader.application -Dosgi.nl=en_EN -Dosgi.user.nl=en_EN -XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts -Dosgi.install.area=area -Dosgi.instance.area=area.inst -Dosgi.configuration.area=area.conf -Dosgi.hook.configurators.exclude=org.eclipse.core.runtime.internal.adaptor.EclipseLogHook,org.eclipse.core.runtime.internal.adaptor.EclipseAdaptorHook,org.eclipse.osgi.internal.composite.CompositeConfigurator -Declipse.parsers.setTCCL=false -Xms40m -Xmx512m -Dorg.osgi.service.http.port=8888 -Duser.language=en -Duser.region=EN"/>
 </launchConfiguration>
