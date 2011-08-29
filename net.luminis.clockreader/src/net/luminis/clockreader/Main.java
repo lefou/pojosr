@@ -47,6 +47,7 @@ import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
 
 public class Main {
 	public static void main(final String[] args) throws Exception {
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		List<BundleDescriptor> scan = new ClasspathScanner()
 				.scanForBundles("(Bundle-SymbolicName=*)");
 		
@@ -200,7 +201,7 @@ public class Main {
 				// TODO Auto-generated method stub
 				return new ResourceBundle() {
 					protected Object handleGetObject(String key) {
-						Object result = arg0.getHeaders(arg1).get(key);
+						Object result = null;//arg0.getHeaders(arg1).get(key);
 						if (result == null) {
 							try {
 								PropertyResourceBundle prb = m_cache.get(arg0.getSymbolicName());
@@ -269,5 +270,6 @@ public class Main {
 		}
 		}.start();
 		appLauncher.start(null);
+		reg.getBundleContext().getBundle(0).stop();
 	}
 }
