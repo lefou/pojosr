@@ -33,12 +33,14 @@ class JarRevision extends Revision
     private final JarFile m_jar;
     private final URL m_url;
 	private final String m_urlString;
+	private final String m_prefix;
 
-    public JarRevision(JarFile jar, URL url, long lastModified)
+    public JarRevision(JarFile jar, URL url, String prefix, long lastModified)
     {
         m_jar = jar;
         m_url = url;
 		m_urlString =  m_url.toExternalForm();
+		m_prefix = prefix;
         if (lastModified > 0)
         {
             m_lastModified = lastModified;
@@ -57,7 +59,7 @@ class JarRevision extends Revision
 
     public Enumeration getEntries()
     {
-        return new EntriesEnumeration(m_jar.entries());
+        return new EntriesEnumeration(m_jar.entries(), m_prefix);
     }
 
     @Override
@@ -66,20 +68,22 @@ class JarRevision extends Revision
         try
         {
 		    if("/".equals(entryName) || "".equals(entryName) || " ".equals(entryName)) {
-			    return new URL("jar:" + m_urlString + "!/");
+			    return new URL("jar:" + m_urlString + "!/" + ((m_prefix == null) ? "" : m_prefix));
 			}
             if (entryName != null)
 			{ 
 				final String target = ((entryName.startsWith("/")) ? entryName.substring(1) : entryName);
-				final JarEntry entry = m_jar.getJarEntry(target);
+				final JarEntry entry = m_jar.getJarEntry(((m_prefix == null) ? "" : m_prefix) + target);
 				if ( entry != null) {
-								 URL result = new URL(null, "jar:" + m_urlString + "!/" + target, new URLStreamHandler() {
+								URL result = new URL(null, "jar:" + m_urlString + "!/" + ((m_prefix == null) ? "" : m_prefix) + target, new URLStreamHandler() {
 									
 									
 									protected URLConnection openConnection(final URL u) throws IOException {
-										return new URLConnection(u) {
+										return new java.net.JarURLConnection(u) {
 											
-											
+											public JarFile getJarFile() {
+											    return m_jar;
+											}
 											public void connect() throws IOException {
 												// TODO Auto-generated method stub
 												
@@ -89,14 +93,28 @@ class JarRevision extends Revision
 													throws IOException {
 													
 												String extF = u.toExternalForm();
-												
-												return m_jar.getInputStream(extF.endsWith(target) ? entry : m_jar.getJarEntry(extF.substring(extF.indexOf('!') + 2)));
+												JarEntry targetEntry = entry;
+												if (!extF.endsWith(target)) {
+												    extF = extF.substring(extF.indexOf('!') + 2);
+												    if (m_prefix != null) {
+														if (!extF.startsWith(m_prefix)) {
+														    extF = m_prefix + extF;
+														}
+													}
+													targetEntry = m_jar.getJarEntry(extF);
+												}
+												return m_jar.getInputStream(targetEntry);
 											}
 										};
 									}
 								});
 								return result;
-            }
+							}
+							else {
+								if (entryName.endsWith("/")) {
+								     return new URL("jar:" + m_urlString + "!/" + ((m_prefix == null) ? "" : m_prefix) + target);
+								}
+							}
 			}
         }
         catch (IOException e)

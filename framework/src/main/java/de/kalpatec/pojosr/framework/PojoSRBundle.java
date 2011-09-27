@@ -54,8 +54,8 @@ class PojoSRBundle implements Bundle
     private final long m_id;
     private final String m_symbolicName;
     private volatile BundleActivator m_activator = null;
-    private volatile int m_state = Bundle.RESOLVED;
-    private volatile BundleContext m_context = null;
+    volatile int m_state = Bundle.RESOLVED;
+    volatile BundleContext m_context = null;
     private final EventDispatcher m_dispatcher;
     private final ClassLoader m_loader;
 

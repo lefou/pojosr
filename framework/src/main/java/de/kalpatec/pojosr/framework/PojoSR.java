@@ -31,7 +31,9 @@ import java.util.HashMap;
 import org.apache.felix.framework.ServiceRegistry;
 import org.apache.felix.framework.util.EventDispatcher;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkEvent;
@@ -54,7 +56,7 @@ import de.kalpatec.pojosr.framework.launch.PojoServiceRegistryFactory;
 public class PojoSR implements PojoServiceRegistry
 {
     private final BundleContext m_context;
-    private final EventDispatcher m_dispatcher = EventDispatcher.start();
+    private volatile EventDispatcher m_dispatcher = null;
     private final ServiceRegistry m_reg = new ServiceRegistry(
             new ServiceRegistry.ServiceRegistryCallbacks()
             {
@@ -73,7 +75,7 @@ public class PojoSR implements PojoServiceRegistry
         final Map<String, String> headers = new HashMap<String, String>();
         headers.put(Constants.BUNDLE_SYMBOLICNAME,
                 "de.kalpatec.pojosr.framework");
-        headers.put(Constants.BUNDLE_VERSION, "0.0.1");
+        headers.put(Constants.BUNDLE_VERSION, "0.1.5-SNAPSHOT");
         headers.put(Constants.BUNDLE_NAME, "System Bundle");
         headers.put(Constants.BUNDLE_MANIFESTVERSION, "2");
 		headers.put(Constants.BUNDLE_VENDOR, "kalpatec");
@@ -102,9 +104,44 @@ public class PojoSR implements PojoServiceRegistry
                 null, 0, "de.kalpatec.pojosr.framework", m_bundles, getClass()
                         .getClassLoader())
         {
+        	@Override
+        	public synchronized void start() throws BundleException {
+        		m_dispatcher = EventDispatcher.start();
+        		m_state = Bundle.STARTING;
+        		
+                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STARTING,
+                        this)); 
+                m_context = new PojoSRBundleContext(this, m_reg, m_dispatcher,
+                                m_bundles);
+                int i = 0;
+                for (Bundle b : m_bundles.values()) {
+                	i++;
+                	try
+                    {
+                        if (b != this)
+                        {
+                            b.start();
+                        }
+                    }
+                    catch (Throwable t)
+                    {
+                    	System.out.println("Unable to start bundle: " + i );
+                    	t.printStackTrace();
+                    }
+                }
+                m_state = Bundle.ACTIVE;
+                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STARTED,
+                        this));
+
+                m_dispatcher.fireFrameworkEvent(new FrameworkEvent(FrameworkEvent.STARTED, this, null));
+        		super.start();
+        	};
             @Override
             public synchronized void stop() throws BundleException
             {
+            	m_state = Bundle.STOPPING;
+                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STOPPING,
+                        this));
                 for (Bundle b : m_bundles.values())
                 {
                     try
@@ -119,7 +156,13 @@ public class PojoSR implements PojoServiceRegistry
                         t.printStackTrace();
                     }
                 }
-                m_dispatcher.shutdown();
+
+                m_state = Bundle.RESOLVED;
+                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STOPPED,
+                        this));
+
+                m_dispatcher.fireFrameworkEvent(new FrameworkEvent(FrameworkEvent.STOPPED, this, null));
+                EventDispatcher.shutdown();
             }
         };
         m_symbolicNameToBundle.put(b.getSymbolicName(), b);
@@ -279,9 +322,15 @@ public class PojoSR implements PojoServiceRegistry
                     URLConnection uc = u.openConnection();
                     if (uc instanceof JarURLConnection)
                     {
+					    String target = ((JarURLConnection) uc).getJarFileURL().toExternalForm();
+						String prefix = null;
+						if (!("jar:" + target + "!/").equals(desc.getUrl().toExternalForm())) {
+						    prefix = desc.getUrl().toExternalForm().substring(("jar:" + target + "!/").length());
+						}
                         r = new JarRevision(
                                 ((JarURLConnection) uc).getJarFile(),
                                 ((JarURLConnection) uc).getJarFileURL(),
+								prefix,
                                 uc.getLastModified());
                     }
                     else
