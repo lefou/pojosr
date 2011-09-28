@@ -25,10 +25,15 @@ import java.util.Map;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.BundleListener;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.SynchronousBundleListener;
 import org.osgi.framework.Version;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
@@ -62,8 +67,7 @@ public class PojoServiceRegistryFactoryImpl implements
 			try {
 				m_reg = new PojoServiceRegistryFactoryImpl()
 				.newPojoServiceRegistry(new HashMap());
-				m_bundle = new PojoServiceRegistryFactoryImpl()
-						.newPojoServiceRegistry(new HashMap()).getBundleContext()
+				m_bundle = m_reg.getBundleContext()
 						.getBundle();
 			} catch (Exception ex) {
 				throw new BundleException("Unable to scan classpath", ex);
@@ -184,10 +188,11 @@ public class PojoServiceRegistryFactoryImpl implements
 		public FrameworkEvent waitForStop(long timeout)
 				throws InterruptedException {
 			final Object lock = new Object();
-			m_bundle.getBundleContext().addFrameworkListener(new FrameworkListener() {
+			
+			m_bundle.getBundleContext().addBundleListener(new SynchronousBundleListener() {
 				
-				public void frameworkEvent(FrameworkEvent event) {
-					if (event.getType() == FrameworkEvent.STOPPED) {
+				public void bundleChanged(BundleEvent event) {
+					if ((event.getBundle() == m_bundle) && (event.getType() == BundleEvent.STOPPED)) {
 						synchronized (lock) {
 							lock.notifyAll();
 						}
@@ -196,7 +201,12 @@ public class PojoServiceRegistryFactoryImpl implements
 			});
 			synchronized (lock) {
 				while (m_bundle.getState() != Bundle.RESOLVED) {
-					lock.wait();
+					if (m_bundle.getState() == Bundle.STOPPING ) {
+						lock.wait(100);
+					}
+					else {
+						lock.wait();
+					}
 				}
 			}
 			return new FrameworkEvent(FrameworkEvent.STOPPED, m_bundle, null);

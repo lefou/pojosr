@@ -20,16 +20,14 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
-import java.util.Properties;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Properties;
 
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
@@ -139,30 +137,40 @@ public class PojoSR implements PojoServiceRegistry
             @Override
             public synchronized void stop() throws BundleException
             {
-            	m_state = Bundle.STOPPING;
-                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STOPPING,
-                        this));
-                for (Bundle b : m_bundles.values())
-                {
-                    try
-                    {
-                        if (b != this)
-                        {
-                            b.stop();
-                        }
-                    }
-                    catch (Throwable t)
-                    {
-                        t.printStackTrace();
-                    }
-                }
+            	final Bundle systemBundle = this;
+            	Runnable r = new Runnable() {
+					
+					public void run() {
+						m_state = Bundle.STOPPING;
+		                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STOPPING,
+		                		systemBundle));
+		                for (Bundle b : m_bundles.values())
+		                {
+		                    try
+		                    {
+		                        if (b != systemBundle)
+		                        {
+		                            b.stop();
+		                        }
+		                    }
+		                    catch (Throwable t)
+		                    {
+		                        t.printStackTrace();
+		                    }
+		                }
+		                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STOPPED,
+		                		systemBundle));
 
-                m_state = Bundle.RESOLVED;
-                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STOPPED,
-                        this));
-
-                m_dispatcher.fireFrameworkEvent(new FrameworkEvent(FrameworkEvent.STOPPED, this, null));
-                EventDispatcher.shutdown();
+		                m_state = Bundle.RESOLVED;
+		                EventDispatcher.shutdown();
+					}
+				};
+				if ("true".equalsIgnoreCase(System.getProperty("de.kalpatec.pojosr.framework.events.sync"))) {
+					r.run();
+				}
+				else {
+					new Thread(r).start();
+				}
             }
         };
         m_symbolicNameToBundle.put(b.getSymbolicName(), b);
