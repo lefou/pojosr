@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.apache.felix.framework.capabilityset.SimpleFilter;
+import de.kalpatec.pojosr.framework.felix.framework.capabilityset.SimpleFilter;
 
 class EntryFilterEnumeration implements Enumeration
 {

@@ -22,7 +22,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Map;
 
-import org.apache.felix.framework.util.StringMap;
+import de.kalpatec.pojosr.framework.felix.framework.util.StringMap;
 
 class DirRevision extends Revision
 {

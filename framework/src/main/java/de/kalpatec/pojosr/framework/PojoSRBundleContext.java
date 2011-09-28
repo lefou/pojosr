@@ -24,9 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.felix.framework.ServiceRegistry;
-import org.apache.felix.framework.capabilityset.SimpleFilter;
-import org.apache.felix.framework.util.EventDispatcher;
 import org.osgi.framework.AllServiceListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -40,6 +37,10 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+
+import de.kalpatec.pojosr.framework.felix.framework.ServiceRegistry;
+import de.kalpatec.pojosr.framework.felix.framework.capabilityset.SimpleFilter;
+import de.kalpatec.pojosr.framework.felix.framework.util.EventDispatcher;
 
 class PojoSRBundleContext implements BundleContext
 {

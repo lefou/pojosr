@@ -25,10 +25,11 @@ import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.apache.felix.framework.util.MapToDictionary;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
+
+import de.kalpatec.pojosr.framework.felix.framework.util.MapToDictionary;
 
 public class ClasspathScanner
 {

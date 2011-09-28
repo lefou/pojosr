@@ -25,7 +25,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarEntry;
 import java.util.zip.ZipEntry;
 
-import org.apache.felix.framework.util.StringMap;
+import de.kalpatec.pojosr.framework.felix.framework.util.StringMap;
 
 class JarRevision extends Revision
 {

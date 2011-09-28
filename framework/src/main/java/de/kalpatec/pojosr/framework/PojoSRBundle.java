@@ -29,10 +29,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.apache.felix.framework.ServiceRegistry;
-import org.apache.felix.framework.util.EventDispatcher;
-import org.apache.felix.framework.util.MapToDictionary;
-import org.apache.felix.framework.util.StringMap;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -41,6 +37,11 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
+
+import de.kalpatec.pojosr.framework.felix.framework.ServiceRegistry;
+import de.kalpatec.pojosr.framework.felix.framework.util.EventDispatcher;
+import de.kalpatec.pojosr.framework.felix.framework.util.MapToDictionary;
+import de.kalpatec.pojosr.framework.felix.framework.util.StringMap;
 
 class PojoSRBundle implements Bundle
 {
