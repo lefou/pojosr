@@ -32,7 +32,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
@@ -413,13 +415,41 @@ public class PojoSR implements PojoServiceRegistry
 
     public static void main(String[] args) throws Exception
     {
+    	Filter filter = null;
+    	Class main = null;
+    	for (int i = 0;(args != null) && (i < args.length) && (i < 2); i++) {
+	    	try {
+	    		filter = FrameworkUtil.createFilter(args[i]);
+	    	} catch (InvalidSyntaxException ie) {
+	    		try {
+	    			main = PojoSR.class.getClassLoader().loadClass(args[i]);
+	    		} catch (Exception ex) {
+	    			throw new IllegalArgumentException("Argument is neither a filter nor a class: " + args[i]);
+	    		}
+	    	}
+    	}
         Map config = new HashMap();
         config.put(
                 PojoServiceRegistryFactory.BUNDLE_DESCRIPTORS,
-                (args.length == 1) ? new ClasspathScanner()
-                        .scanForBundles(args[0]) : new ClasspathScanner()
+                (filter != null) ? new ClasspathScanner()
+                        .scanForBundles(filter.toString()) : new ClasspathScanner()
                         .scanForBundles());
         new PojoServiceRegistryFactoryImpl().newPojoServiceRegistry(config);
+        if (main != null) {
+        	int count = 0;
+        	if (filter != null) {
+        		count++;
+        	}
+        	if (main != null) {
+        		count++;
+        	}
+        	String[] newArgs = args;
+        	if (count > 0) {
+        		newArgs = new String[args.length - count];
+        		System.arraycopy(args, count, newArgs, 0, newArgs.length);
+        	}
+        	main.getMethod("main", String[].class).invoke(null, (Object) newArgs );
+        }
     }
 
     public BundleContext getBundleContext()
