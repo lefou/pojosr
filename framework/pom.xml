@@ -115,7 +115,7 @@
             <Bundle-SymbolicName>de.kalpatec.pojosr.framework</Bundle-SymbolicName>
             <Bundle-Name>Pojo Service Registry</Bundle-Name>
             <Bundle-Vendor>Karl Pauls</Bundle-Vendor>
-            <Private-Package>org.osgi.framework.*, org.osgi.service.url, org.osgi.service.packageadmin, org.osgi.service.startlevel, org.osgi.util.tracker,org.apache.felix.framework.*, de.kalpatec.pojosr.framework.*</Private-Package>
+            <Private-Package>org.osgi.framework.*, org.osgi.service.url, org.osgi.service.packageadmin, org.osgi.service.startlevel, org.osgi.util.tracker, de.kalpatec.pojosr.framework.*</Private-Package>
             <Import-Package>!*</Import-Package>
             <Include-Resource>META-INF/LICENSE=LICENSE,META-INF/NOTICE=NOTICE,META-INF/DEPENDENCIES=DEPENDENCIES,{src/main/resources/}</Include-Resource> 
             <Main-Class>de.kalpatec.pojosr.framework.PojoSR</Main-Class>

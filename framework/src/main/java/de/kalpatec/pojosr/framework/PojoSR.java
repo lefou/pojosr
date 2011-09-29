@@ -104,6 +104,9 @@ public class PojoSR implements PojoServiceRegistry
         {
         	@Override
         	public synchronized void start() throws BundleException {
+        		if (m_state != Bundle.RESOLVED) {
+        			return;
+        		}
         		m_dispatcher = EventDispatcher.start();
         		m_state = Bundle.STARTING;
         		
@@ -137,11 +140,17 @@ public class PojoSR implements PojoServiceRegistry
             @Override
             public synchronized void stop() throws BundleException
             {
+            	if ((m_state == Bundle.STOPPING) || m_state == Bundle.RESOLVED) {
+            		return;
+            		
+            	}
+            	else if (m_state != Bundle.ACTIVE) {
+            		throw new BundleException("Can't stop pojosr because it is not ACTIVE");
+            	}
             	final Bundle systemBundle = this;
             	Runnable r = new Runnable() {
 					
 					public void run() {
-						m_state = Bundle.STOPPING;
 		                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STOPPING,
 		                		systemBundle));
 		                for (Bundle b : m_bundles.values())
@@ -160,11 +169,11 @@ public class PojoSR implements PojoServiceRegistry
 		                }
 		                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STOPPED,
 		                		systemBundle));
-
 		                m_state = Bundle.RESOLVED;
 		                EventDispatcher.shutdown();
 					}
 				};
+				m_state = Bundle.STOPPING;
 				if ("true".equalsIgnoreCase(System.getProperty("de.kalpatec.pojosr.framework.events.sync"))) {
 					r.run();
 				}
