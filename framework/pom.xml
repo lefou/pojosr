@@ -24,7 +24,7 @@
   <name>Pojo Service Registry</name>
   <groupId>com.googlecode.pojosr</groupId>
   <artifactId>de.kalpatec.pojosr.framework</artifactId>
-  <version>0.1.5-SNAPSHOT</version>
+  <version>0.1.6</version>
   <description>A service registry that enables OSGi style service registry programs without using an OSGi framework.</description>
   <url>http://pojosr.googlecode.com/</url>
   <licenses>
@@ -35,9 +35,9 @@
     </license>
   </licenses>
   <scm>
-    <url>http://pojosr.googlecode.com/svn/trunk/</url>
-    <connection>scm:svn:http://pojosr.googlecode.com/svn/trunk/framework/</connection>
-    <developerConnection>scm:svn:https://pojosr.googlecode.com/svn/trunk/framework/</developerConnection>
+    <url>scm:svn:https://pojosr.googlecode.com/svn/tags/de.kalpatec.pojosr.framework-0.1.6</url>
+    <connection>scm:svn:http://pojosr.googlecode.com/svn/tags/de.kalpatec.pojosr.framework-0.1.6</connection>
+    <developerConnection>scm:svn:https://pojosr.googlecode.com/svn/tags/de.kalpatec.pojosr.framework-0.1.6</developerConnection>
   </scm>
   <developers>
     <developer>
