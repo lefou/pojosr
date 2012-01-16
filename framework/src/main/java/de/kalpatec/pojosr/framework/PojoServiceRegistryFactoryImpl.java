@@ -15,6 +15,7 @@
  */
 package de.kalpatec.pojosr.framework;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -211,6 +212,24 @@ public class PojoServiceRegistryFactoryImpl implements
 			}
 			return new FrameworkEvent(FrameworkEvent.STOPPED, m_bundle, null);
 		}
+		
+		public File getDataFile(String filename) {
+		    return m_bundle.getDataFile(filename);
+		}
+
+        public int compareTo(Bundle o)
+        {
+            if (o == this) 
+            {
+                return 0;
+            }
+            return m_bundle.compareTo(o);
+        }
+
+        public <A> A adapt(Class<A> type)
+        {
+            return m_bundle.adapt(type);
+        }
 
 	}
 }

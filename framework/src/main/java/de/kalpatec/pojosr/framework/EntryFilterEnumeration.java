@@ -26,16 +26,16 @@ import java.util.Set;
 
 import de.kalpatec.pojosr.framework.felix.framework.capabilityset.SimpleFilter;
 
-class EntryFilterEnumeration implements Enumeration
+class EntryFilterEnumeration<T> implements Enumeration<T>
 {
-    private final Enumeration m_enumeration;
+    private final Enumeration<String> m_enumeration;
     private final Revision m_revision;
     private final String m_path;
     private final List<String> m_filePattern;
     private final boolean m_recurse;
     private final boolean m_isURLValues;
-    private final Set<String> m_dirEntries = new HashSet();
-    private final List<Object> m_nextEntries = new ArrayList(2);
+    private final Set<String> m_dirEntries = new HashSet<String>();
+    private final List<T> m_nextEntries = new ArrayList<T>(2);
 
     public EntryFilterEnumeration(Revision rev, boolean includeFragments,
             String path, String filePattern, boolean recurse,
@@ -77,13 +77,13 @@ class EntryFilterEnumeration implements Enumeration
         return (m_nextEntries.size() != 0);
     }
 
-    public synchronized Object nextElement()
+    public synchronized T nextElement()
     {
         if (m_nextEntries.size() == 0)
         {
             throw new NoSuchElementException("No more entries.");
         }
-        Object last = m_nextEntries.remove(0);
+        T last = m_nextEntries.remove(0);
         findNext();
         return last;
     }
@@ -167,7 +167,7 @@ class EntryFilterEnumeration implements Enumeration
                                                     : entryURL;
                                             try
                                             {
-                                                m_nextEntries.add(new URL(
+                                                m_nextEntries.add((T) new URL(
                                                         entryURL, "/" + dir));
                                             }
                                             catch (MalformedURLException ex)
@@ -176,7 +176,7 @@ class EntryFilterEnumeration implements Enumeration
                                         }
                                         else
                                         {
-                                            m_nextEntries.add(dir);
+                                            m_nextEntries.add((T) dir);
                                         }
                                     }
                                 }
@@ -208,11 +208,11 @@ class EntryFilterEnumeration implements Enumeration
                             {
                                 entryURL = (entryURL == null) ? m_revision
                                         .getEntry(entryName) : entryURL;
-                                m_nextEntries.add(entryURL);
+                                m_nextEntries.add((T) entryURL);
                             }
                             else
                             {
-                                m_nextEntries.add(entryName);
+                                m_nextEntries.add((T) entryName);
                             }
                         }
                     }

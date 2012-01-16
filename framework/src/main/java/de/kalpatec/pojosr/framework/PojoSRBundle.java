@@ -15,10 +15,14 @@
  */
 package de.kalpatec.pojosr.framework;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -37,13 +41,22 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
+import org.osgi.framework.startlevel.BundleStartLevel;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRequirement;
+import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.wiring.BundleRevisions;
+import org.osgi.framework.wiring.BundleWire;
+import org.osgi.framework.wiring.BundleWiring;
+
+import com.sun.source.tree.EnhancedForLoopTree;
 
 import de.kalpatec.pojosr.framework.felix.framework.ServiceRegistry;
 import de.kalpatec.pojosr.framework.felix.framework.util.EventDispatcher;
 import de.kalpatec.pojosr.framework.felix.framework.util.MapToDictionary;
 import de.kalpatec.pojosr.framework.felix.framework.util.StringMap;
 
-class PojoSRBundle implements Bundle
+class PojoSRBundle implements Bundle, BundleRevisions, BundleRevision
 {
     private final Revision m_revision;
     private final Map<String, String> m_manifest;
@@ -414,21 +427,21 @@ class PojoSRBundle implements Bundle
         return m_symbolicName;
     }
 
-    public Class loadClass(String name) throws ClassNotFoundException
+    public Class<?> loadClass(String name) throws ClassNotFoundException
     {
         return m_loader.loadClass(name);
     }
 
-    public Enumeration getResources(String name) throws IOException
+    public Enumeration<URL> getResources(String name) throws IOException
     {
         // TODO: module - implement this based on the revision
         return m_loader.getResources(name);
     }
 
-    public Enumeration getEntryPaths(String path)
+    public Enumeration<String> getEntryPaths(String path)
     {
-        return new EntryFilterEnumeration(m_revision, false, path, null, false,
-                true);
+        return new EntryFilterEnumeration<String>(m_revision, false, path, null, false,
+                false);
     }
 
     public URL getEntry(String path)
@@ -442,11 +455,11 @@ class PojoSRBundle implements Bundle
         return m_revision.getLastModified();
     }
 
-    public Enumeration findEntries(String path, String filePattern,
+    public Enumeration<URL> findEntries(String path, String filePattern,
             boolean recurse)
     {
         // TODO: module - implement this based on the revision
-        return new EntryFilterEnumeration(m_revision, false, path, filePattern,
+        return new EntryFilterEnumeration<URL>(m_revision, false, path, filePattern,
                 recurse, true);
     }
 
@@ -473,4 +486,165 @@ class PojoSRBundle implements Bundle
 		 }
 		 return false;
 	}
+
+    public int compareTo(Bundle o)
+    {
+        long thisBundleId = this.getBundleId();
+        long thatBundleId = o.getBundleId();
+        return (thisBundleId < thatBundleId ? -1 : (thisBundleId == thatBundleId ? 0 : 1));
+    }
+
+    public <A> A adapt(Class<A> type)
+    {
+        if (type == BundleStartLevel.class)
+        {
+            return (A) new BundleStartLevel() {
+
+                public Bundle getBundle()
+                {
+                    return PojoSRBundle.this;
+                }
+
+                public int getStartLevel()
+                {
+                    // TODO Implement this?
+                    return 1;
+                }
+
+                public void setStartLevel(int startlevel)
+                {
+                    // TODO Implement this?
+                }
+
+                public boolean isPersistentlyStarted()
+                {
+                    return true;
+                }
+
+                public boolean isActivationPolicyUsed()
+                {
+                    return false;
+                }};
+        }
+        else if (type == BundleRevisions.class)
+        {
+            return (A) this;
+        }
+        else if (type == BundleWiring.class)
+        {
+            return (A) this.getWiring();
+        }
+        return null;
+    }
+
+    public File getDataFile(String filename)
+    {
+        return m_context.getDataFile(filename);
+    }
+
+    public String toString()
+    {
+        String sym = getSymbolicName();
+        if (sym != null)
+        {
+            return sym + " [" + getBundleId() +"]";
+        }
+        return "[" + getBundleId() +"]";
+    }
+
+    public Bundle getBundle()
+    {
+        return this;
+    }
+
+    public List<BundleRevision> getRevisions()
+    {
+        return Arrays.asList((BundleRevision) this);
+    }
+
+    public List<BundleCapability> getDeclaredCapabilities(String namespace)
+    {
+        return Collections.emptyList();
+    }
+
+    public List<BundleRequirement> getDeclaredRequirements(String namespace)
+    {
+        return Collections.emptyList();
+    }
+
+    public int getTypes()
+    {
+        if (getHeaders().get(Constants.FRAGMENT_HOST) != null) {
+            return BundleRevision.TYPE_FRAGMENT;
+        }
+        return 0;
+    }
+
+    public BundleWiring getWiring()
+    {
+        return new BundleWiring()
+        {
+            
+            public Bundle getBundle()
+            {
+                return PojoSRBundle.this;
+            }
+            
+            public Collection<String> listResources(String path, String filePattern, int options)
+            {
+                // TODO: implement this
+                return Collections.emptyList();
+            }
+            
+            public boolean isInUse()
+            {
+                return true;
+            }
+            
+            public boolean isCurrent()
+            {
+                return true;
+            }
+            
+            public BundleRevision getRevision()
+            {
+                return PojoSRBundle.this;
+            }
+            
+            public List<BundleRequirement> getRequirements(String namespace)
+            {
+                return getDeclaredRequirements(namespace);
+            }
+            
+            public List<BundleWire> getRequiredWires(String namespace)
+            {
+                return Collections.emptyList();
+            }
+            
+            public List<BundleWire> getProvidedWires(String namespace)
+            {
+                return Collections.emptyList();
+            }
+            
+            public ClassLoader getClassLoader()
+            {
+                return getClass().getClassLoader();
+            }
+            
+            public List<BundleCapability> getCapabilities(String namespace)
+            {
+                return Collections.emptyList();
+            }
+            
+            public List<URL> findEntries(String path, String filePattern, int options)
+            {
+                List<URL> result = new ArrayList<URL>();
+                for (Enumeration<URL> e = PojoSRBundle.this.findEntries(path, filePattern, options == BundleWiring.FINDENTRIES_RECURSE); e.hasMoreElements();) 
+                {
+                    result.add(e.nextElement());
+                }
+                return result;
+            }
+        };
+    }
 }

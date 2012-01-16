@@ -18,6 +18,8 @@ package de.kalpatec.pojosr.framework;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -251,5 +253,38 @@ class PojoSRBundleContext implements BundleContext
     {
         m_dispatcher
                 .addListener(m_bundle, BundleListener.class, listener, null);
+    }
+
+    public <S> ServiceRegistration<S> registerService(Class<S> clazz, S service, Dictionary<String, ?> properties)
+    {
+        return (ServiceRegistration<S>) registerService(clazz.getName(), service, properties);
+    }
+
+    public <S> ServiceReference<S> getServiceReference(Class<S> clazz)
+    {
+        return (ServiceReference<S>) getServiceReference(clazz.getName());
+    }
+
+    public <S> Collection<ServiceReference<S>> getServiceReferences(Class<S> clazz, String filter)
+                    throws InvalidSyntaxException
+    {
+        ServiceReference<S>[] refs = (ServiceReference<S>[]) getServiceReferences(clazz.getName(), filter);
+        if (refs == null)
+        {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(refs);
+    }
+
+    public Bundle getBundle(String location)
+    {
+        for (Bundle bundle : m_bundles.values()) 
+        {
+            if (location.equals(bundle.getLocation())) 
+            {
+                return bundle;
+            }
+        }
+        return null;
     }
 }

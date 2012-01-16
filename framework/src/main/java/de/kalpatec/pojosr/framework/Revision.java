@@ -18,11 +18,13 @@ package de.kalpatec.pojosr.framework;
 import java.net.URL;
 import java.util.Enumeration;
 
+import org.osgi.framework.wiring.BundleRevision;
+
 abstract class Revision
 {
     public abstract long getLastModified();
 
     public abstract URL getEntry(String entryName);
 
-    public abstract Enumeration getEntries();
+    public abstract Enumeration<String> getEntries();
 }
