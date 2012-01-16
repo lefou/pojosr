@@ -49,7 +49,6 @@ import org.osgi.framework.wiring.BundleRevisions;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 
-import com.sun.source.tree.EnhancedForLoopTree;
 
 import de.kalpatec.pojosr.framework.felix.framework.ServiceRegistry;
 import de.kalpatec.pojosr.framework.felix.framework.util.EventDispatcher;
