@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2011 Karl Pauls karlpauls@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,7 +56,6 @@ import de.kalpatec.pojosr.framework.launch.PojoServiceRegistryFactory;
 public class PojoSR implements PojoServiceRegistry
 {
     private final BundleContext m_context;
-    private volatile EventDispatcher m_dispatcher = null;
     private final ServiceRegistry m_reg = new ServiceRegistry(
             new ServiceRegistry.ServiceRegistryCallbacks()
             {
@@ -67,6 +66,8 @@ public class PojoSR implements PojoServiceRegistry
                     m_dispatcher.fireServiceEvent(event, oldProps, null);
                 }
             });
+
+    private final EventDispatcher m_dispatcher = new EventDispatcher(m_reg);
     private final Map<Long, Bundle> m_bundles =new HashMap<Long, Bundle>();
     private final Map<String, Bundle> m_symbolicNameToBundle = new HashMap<String, Bundle>();
 
@@ -75,7 +76,7 @@ public class PojoSR implements PojoServiceRegistry
         final Map<String, String> headers = new HashMap<String, String>();
         headers.put(Constants.BUNDLE_SYMBOLICNAME,
                 "de.kalpatec.pojosr.framework");
-        headers.put(Constants.BUNDLE_VERSION, "0.1.7-SNAPSHOT");
+        headers.put(Constants.BUNDLE_VERSION, "0.1.9-SNAPSHOT");
         headers.put(Constants.BUNDLE_NAME, "System Bundle");
         headers.put(Constants.BUNDLE_MANIFESTVERSION, "2");
 		headers.put(Constants.BUNDLE_VENDOR, "kalpatec");
@@ -109,11 +110,11 @@ public class PojoSR implements PojoServiceRegistry
         		if (m_state != Bundle.RESOLVED) {
         			return;
         		}
-        		m_dispatcher = EventDispatcher.start();
+        		m_dispatcher.startDispatching();
         		m_state = Bundle.STARTING;
-        		
+
                 m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STARTING,
-                        this)); 
+                        this));
                 m_context = new PojoSRBundleContext(this, m_reg, m_dispatcher,
                                 m_bundles);
                 int i = 0;
@@ -144,14 +145,14 @@ public class PojoSR implements PojoServiceRegistry
             {
             	if ((m_state == Bundle.STOPPING) || m_state == Bundle.RESOLVED) {
             		return;
-            		
+
             	}
             	else if (m_state != Bundle.ACTIVE) {
             		throw new BundleException("Can't stop pojosr because it is not ACTIVE");
             	}
             	final Bundle systemBundle = this;
             	Runnable r = new Runnable() {
-					
+
 					public void run() {
 		                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STOPPING,
 		                		systemBundle));
@@ -172,7 +173,7 @@ public class PojoSR implements PojoServiceRegistry
 		                m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STOPPED,
 		                		systemBundle));
 		                m_state = Bundle.RESOLVED;
-		                EventDispatcher.shutdown();
+		                m_dispatcher.stopDispatching();
 					}
 				};
 				m_state = Bundle.STOPPING;
@@ -322,7 +323,7 @@ public class PojoSR implements PojoServiceRegistry
             startBundles(scan);
 		}
     }
-	
+
 	public void startBundles(List<BundleDescriptor> scan) throws Exception {
 	 for (BundleDescriptor desc : scan)
             {
@@ -396,7 +397,7 @@ public class PojoSR implements PojoServiceRegistry
                 }
 
             }
-        
+
 
         for (long i = 1; i < m_bundles.size(); i++)
         {

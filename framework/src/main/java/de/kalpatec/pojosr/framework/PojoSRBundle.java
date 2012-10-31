@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2011 Karl Pauls karlpauls@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -178,7 +178,7 @@ class PojoSRBundle implements Bundle, BundleRevisions, BundleRevision
         finally
         {
             m_reg.unregisterServices(this);
-            m_dispatcher.removeListeners(this);
+            m_dispatcher.removeListeners(m_context);
             m_activator = null;
             m_context = null;
             m_state = Bundle.RESOLVED;
@@ -478,7 +478,7 @@ class PojoSRBundle implements Bundle, BundleRevisions, BundleRevision
         return m_version;
     }
 
-	public boolean equals(Object o) 
+	public boolean equals(Object o)
 	{
 	     if (o instanceof PojoSRBundle) {
 		     return ((PojoSRBundle) o).m_id == m_id;
@@ -583,62 +583,67 @@ class PojoSRBundle implements Bundle, BundleRevisions, BundleRevision
     {
         return new BundleWiring()
         {
-            
+
             public Bundle getBundle()
             {
                 return PojoSRBundle.this;
             }
-            
+
             public Collection<String> listResources(String path, String filePattern, int options)
             {
+                Collection<String> result = new ArrayList<String>();
+                for (URL u : findEntries(path, filePattern, options))
+                {
+                    result.add(u.toString());
+                }
                 // TODO: implement this
-                return Collections.emptyList();
+                return result;
             }
-            
+
             public boolean isInUse()
             {
                 return true;
             }
-            
+
             public boolean isCurrent()
             {
                 return true;
             }
-            
+
             public BundleRevision getRevision()
             {
                 return PojoSRBundle.this;
             }
-            
+
             public List<BundleRequirement> getRequirements(String namespace)
             {
                 return getDeclaredRequirements(namespace);
             }
-            
+
             public List<BundleWire> getRequiredWires(String namespace)
             {
                 return Collections.emptyList();
             }
-            
+
             public List<BundleWire> getProvidedWires(String namespace)
             {
                 return Collections.emptyList();
             }
-            
+
             public ClassLoader getClassLoader()
             {
                 return getClass().getClassLoader();
             }
-            
+
             public List<BundleCapability> getCapabilities(String namespace)
             {
                 return Collections.emptyList();
             }
-            
+
             public List<URL> findEntries(String path, String filePattern, int options)
             {
                 List<URL> result = new ArrayList<URL>();
-                for (Enumeration<URL> e = PojoSRBundle.this.findEntries(path, filePattern, options == BundleWiring.FINDENTRIES_RECURSE); e.hasMoreElements();) 
+                for (Enumeration<URL> e = PojoSRBundle.this.findEntries(path, filePattern, options == BundleWiring.FINDENTRIES_RECURSE); e.hasMoreElements();)
                 {
                     result.add(e.nextElement());
                 }

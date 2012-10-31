@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2011 Karl Pauls karlpauls@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,19 +67,19 @@ class PojoSRBundleContext implements BundleContext
 
     public void removeServiceListener(ServiceListener listener)
     {
-        m_dispatcher.removeListener(m_bundle, ServiceListener.class,
+        m_dispatcher.removeListener(this, ServiceListener.class,
                     listener);
     }
 
     public void removeFrameworkListener(FrameworkListener listener)
     {
         m_dispatcher
-                .removeListener(m_bundle, FrameworkListener.class, listener);
+                .removeListener(this, FrameworkListener.class, listener);
     }
 
     public void removeBundleListener(BundleListener listener)
     {
-        m_dispatcher.removeListener(m_bundle, BundleListener.class, listener);
+        m_dispatcher.removeListener(this, BundleListener.class, listener);
     }
 
     public ServiceRegistration registerService(String clazz, Object service,
@@ -167,7 +167,7 @@ class PojoSRBundleContext implements BundleContext
         if (System.getProperty("org.osgi.framework.storage") != null)
         {
             root = new File(new File(System.getProperty("org.osgi.framework.storage")), root.getName());
-        } 
+        }
         root.mkdirs();
         return filename.trim().length() > 0 ? new File(root, filename) : root;
     }
@@ -239,20 +239,20 @@ class PojoSRBundleContext implements BundleContext
      public void addServiceListener(final ServiceListener listener, String filter)
             throws InvalidSyntaxException
     {
-		 m_dispatcher.addListener(m_bundle, ServiceListener.class, listener,
+		 m_dispatcher.addListener(this, ServiceListener.class, listener,
                 filter == null ? null : FrameworkUtil.createFilter(filter));
     }
 
     public void addFrameworkListener(FrameworkListener listener)
     {
-        m_dispatcher.addListener(m_bundle, FrameworkListener.class, listener,
+        m_dispatcher.addListener(this, FrameworkListener.class, listener,
                 null);
     }
 
     public void addBundleListener(BundleListener listener)
     {
         m_dispatcher
-                .addListener(m_bundle, BundleListener.class, listener, null);
+                .addListener(this, BundleListener.class, listener, null);
     }
 
     public <S> ServiceRegistration<S> registerService(Class<S> clazz, S service, Dictionary<String, ?> properties)
@@ -278,9 +278,9 @@ class PojoSRBundleContext implements BundleContext
 
     public Bundle getBundle(String location)
     {
-        for (Bundle bundle : m_bundles.values()) 
+        for (Bundle bundle : m_bundles.values())
         {
-            if (location.equals(bundle.getLocation())) 
+            if (location.equals(bundle.getLocation()))
             {
                 return bundle;
             }

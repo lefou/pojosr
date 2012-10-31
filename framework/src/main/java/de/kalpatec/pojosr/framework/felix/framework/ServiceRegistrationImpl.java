@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2011 Karl Pauls karlpauls@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,8 @@ import de.kalpatec.pojosr.framework.felix.framework.capabilityset.Directive;
 import de.kalpatec.pojosr.framework.felix.framework.util.MapToDictionary;
 import de.kalpatec.pojosr.framework.felix.framework.util.StringMap;
 import de.kalpatec.pojosr.framework.felix.framework.util.Util;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRevision;
 
 class ServiceRegistrationImpl implements ServiceRegistration
 {
@@ -148,7 +150,7 @@ class ServiceRegistrationImpl implements ServiceRegistration
      * This method provides direct access to the associated service object; it
      * generally should not be used by anyone other than the service registry
      * itself.
-     * 
+     *
      * @return The service object associated with the registration.
      **/
     Object getService()
@@ -164,7 +166,7 @@ class ServiceRegistrationImpl implements ServiceRegistration
         {
             Object svcObj = null;
             svcObj = getFactoryUnchecked(acqBundle);
-            
+
             return svcObj;
         }
         else
@@ -247,7 +249,7 @@ class ServiceRegistrationImpl implements ServiceRegistration
                 }
 				} catch (ClassNotFoundException ex) {
 				   throw new ServiceException("Service is missing class: " + m_classes[i], ServiceException.FACTORY_ERROR);
-				} 
+				}
 
             }
         }
@@ -264,16 +266,19 @@ class ServiceRegistrationImpl implements ServiceRegistration
         m_factory.ungetService(bundle, this, svcObj);
     }
 
-    
+
 
     //
     // ServiceReference implementation
     //
 
-    class ServiceReferenceImpl implements ServiceReference, Capability
+    class ServiceReferenceImpl implements ServiceReference, BundleCapability
     {
+        private final ServiceReferenceMap m_map;
+
         private ServiceReferenceImpl()
         {
+            m_map = new ServiceReferenceMap();
         }
 
         ServiceRegistrationImpl getRegistration()
@@ -285,30 +290,28 @@ class ServiceRegistrationImpl implements ServiceRegistration
         // Capability methods.
         //
 
+        @Override
+        public BundleRevision getRevision()
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
         public String getNamespace()
         {
             return "service-reference";
         }
 
-        public Directive getDirective(String name)
+        @Override
+        public Map<String, String> getDirectives()
         {
-            return null;
+            return Collections.EMPTY_MAP;
         }
 
-        public List<Directive> getDirectives()
+        @Override
+        public Map<String,Object> getAttributes()
         {
-            return Collections.EMPTY_LIST;
-        }
-
-        public Attribute getAttribute(String name)
-        {
-            Object value = ServiceRegistrationImpl.this.getProperty(name);
-            return (value == null) ? null : new Attribute(name, value, false);
-        }
-
-        public List<Attribute> getAttributes()
-        {
-            return Collections.EMPTY_LIST;
+            return m_map;
         }
 
         public List<String> getUses()
@@ -371,7 +374,7 @@ class ServiceRegistrationImpl implements ServiceRegistration
              * pkgName); // Get package wiring from service provider. Module
              * providerModule = ((BundleImpl) m_bundle).getCurrentModule(); Wire
              * providerWire = Util.getWire(providerModule, pkgName);
-             * 
+             *
              * // There are four situations that may occur here: // 1. Neither
              * the requester, nor provider have wires for the package. // 2. The
              * requester does not have a wire for the package. // 3. The
@@ -391,7 +394,7 @@ class ServiceRegistrationImpl implements ServiceRegistration
              * using the same class. For case 4, we // simply compare the
              * exporting modules from the package wiring to // determine if we
              * need to filter the service reference.
-             * 
+             *
              * // Case 1: Both requester and provider have no wire. if
              * ((requesterWire == null) && (providerWire == null)) { // If
              * requester has no access then true, otherwise service //
@@ -479,6 +482,69 @@ class ServiceRegistrationImpl implements ServiceRegistration
 
             // If ranks are equal, then sort by service id in descending order.
             return (id.compareTo(otherId) < 0) ? 1 : -1;
+        }
+    }
+
+     private class ServiceReferenceMap implements Map
+    {
+        public int size()
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public boolean isEmpty()
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public boolean containsKey(Object o)
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public boolean containsValue(Object o)
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public Object get(Object o)
+        {
+            return ServiceRegistrationImpl.this.getProperty((String) o);
+        }
+
+        public Object put(Object k, Object v)
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public Object remove(Object o)
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void putAll(Map map)
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void clear()
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public Set<Object> keySet()
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public Collection<Object> values()
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public Set<Entry<Object, Object>> entrySet()
+        {
+            return Collections.EMPTY_SET;
         }
     }
 }
