@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2011 Karl Pauls karlpauls@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,17 +35,31 @@ public class ClasspathScanner
 {
     public List<BundleDescriptor> scanForBundles() throws Exception
     {
-        return scanForBundles(null);
+        return scanForBundles(null, null);
+    }
+
+    public List<BundleDescriptor> scanForBundles(ClassLoader loader) throws Exception
+    {
+        return scanForBundles(null, loader);
     }
 
     public List<BundleDescriptor> scanForBundles(String filterString)
             throws Exception
     {
+        return scanForBundles(filterString, null);
+    }
+
+    public List<BundleDescriptor> scanForBundles(String filterString, ClassLoader loader)
+        throws Exception
+    {
         Filter filter = (filterString != null) ? FrameworkUtil
                 .createFilter(filterString) : null;
+
+        loader = (loader != null) ? loader : getClass().getClassLoader();
+
         List<BundleDescriptor> bundles = new ArrayList<BundleDescriptor>();
 		byte[] bytes = new byte[1024 * 1024 * 2];
-        for (Enumeration<URL> e = getClass().getClassLoader().getResources(
+        for (Enumeration<URL> e = loader.getResources(
                 "META-INF/MANIFEST.MF"); e.hasMoreElements();)
         {
             URL manifestURL = e.nextElement();
@@ -73,7 +87,7 @@ public class ClasspathScanner
 				String key = null;
 				int last = 0;
 				int current = 0;
-		
+
                 Map<String, String> headers = new HashMap<String, String>();
 				for (int i = 0; i < size; i++)
 				{
@@ -137,7 +151,7 @@ public class ClasspathScanner
 						// write back the byte if it needs to be included in the key or the value.
 						bytes[current++] = bytes[i];
 					}
-				}	
+				}
                 if ((filter == null)
                         || filter.match(new MapToDictionary(headers)))
                 {
