@@ -155,8 +155,7 @@ public class ClasspathScanner
                 if ((filter == null)
                         || filter.match(new MapToDictionary(headers)))
                 {
-                    bundles.add(new BundleDescriptor(getClass()
-                            .getClassLoader(), getParentURL(manifestURL),
+                    bundles.add(new BundleDescriptor(loader, getParentURL(manifestURL),
                             headers));
                 }
             }
