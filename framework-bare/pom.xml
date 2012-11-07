@@ -24,7 +24,7 @@
   <name>Pojo Service Registry</name>
   <groupId>com.googlecode.pojosr</groupId>
   <artifactId>de.kalpatec.pojosr.framework.bare</artifactId>
-  <version>0.2.1</version>
+  <version>0.3.0-SNAPSHOT</version>
   <description>A service registry that enables OSGi style service registry programs without using an OSGi framework (This version doesn't embed OSGi api).</description>
   <url>http://pojosr.googlecode.com/</url>
   <licenses>
@@ -35,9 +35,9 @@
     </license>
   </licenses>
   <scm>
-    <url>scm:svn:https://pojosr.googlecode.com/svn/tags/de.kalpatec.pojosr.framework.bare-0.2.1</url>
-    <connection>scm:svn:http://pojosr.googlecode.com/svn/tags/de.kalpatec.pojosr.framework.bare-0.2.1</connection>
-    <developerConnection>scm:svn:https://pojosr.googlecode.com/svn/tags/de.kalpatec.pojosr.framework.bare-0.2.1</developerConnection>
+    <url>http://pojosr.googlecode.com/svn/trunk/</url>
+    <connection>scm:svn:http://pojosr.googlecode.com/svn/trunk/framework-bare/</connection>
+    <developerConnection>scm:svn:https://pojosr.googlecode.com/svn/trunk/framework-bare/</developerConnection>
   </scm>
   <developers>
     <developer>
@@ -50,7 +50,7 @@
       <dependency>
           <groupId>com.googlecode.pojosr</groupId>
           <artifactId>de.kalpatec.pojosr.framework</artifactId>
-          <version>0.2.1</version>
+          <version>0.3.0-SNAPSHOT</version>
       </dependency>
   </dependencies>
   <repositories />
