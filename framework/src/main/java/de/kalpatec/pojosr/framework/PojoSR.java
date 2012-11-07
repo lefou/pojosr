@@ -76,7 +76,7 @@ public class PojoSR implements PojoServiceRegistry
         final Map<String, String> headers = new HashMap<String, String>();
         headers.put(Constants.BUNDLE_SYMBOLICNAME,
                 "de.kalpatec.pojosr.framework");
-        headers.put(Constants.BUNDLE_VERSION, "0.2.0");
+        headers.put(Constants.BUNDLE_VERSION, "0.2.1");
         headers.put(Constants.BUNDLE_NAME, "System Bundle");
         headers.put(Constants.BUNDLE_MANIFESTVERSION, "2");
 		headers.put(Constants.BUNDLE_VENDOR, "kalpatec");
