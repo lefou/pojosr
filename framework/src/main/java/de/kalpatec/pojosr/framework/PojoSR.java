@@ -70,7 +70,7 @@ public class PojoSR implements PojoServiceRegistry
     private final EventDispatcher m_dispatcher = new EventDispatcher(m_reg);
     private final Map<Long, Bundle> m_bundles =new HashMap<Long, Bundle>();
     private final Map<String, Bundle> m_symbolicNameToBundle = new HashMap<String, Bundle>();
-
+    private final Map bundleConfig;
     public PojoSR(Map config) throws Exception
     {
         final Map<String, String> headers = new HashMap<String, String>();
@@ -80,6 +80,7 @@ public class PojoSR implements PojoServiceRegistry
         headers.put(Constants.BUNDLE_NAME, "System Bundle");
         headers.put(Constants.BUNDLE_MANIFESTVERSION, "2");
 		headers.put(Constants.BUNDLE_VENDOR, "kalpatec");
+        bundleConfig = new HashMap(config);
         final Bundle b = new PojoSRBundle(new Revision()
         {
 
@@ -103,7 +104,7 @@ public class PojoSR implements PojoServiceRegistry
             }
         }, headers, new Version(0, 0, 1), "file:pojosr", m_reg, m_dispatcher,
                 null, 0, "de.kalpatec.pojosr.framework", m_bundles, getClass()
-                        .getClassLoader())
+                        .getClassLoader(), bundleConfig)
         {
         	@Override
         	public synchronized void start() throws BundleException {
@@ -116,7 +117,7 @@ public class PojoSR implements PojoServiceRegistry
                 m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STARTING,
                         this));
                 m_context = new PojoSRBundleContext(this, m_reg, m_dispatcher,
-                                m_bundles);
+                                m_bundles, bundleConfig);
                 int i = 0;
                 for (Bundle b : m_bundles.values()) {
                 	i++;
@@ -388,7 +389,7 @@ public class PojoSR implements PojoServiceRegistry
                             bundleHeaders.get(Constants.BUNDLE_ACTIVATOR),
                             m_bundles.size(),
                             sym,
-                            m_bundles, desc.getClassLoader());
+                            m_bundles, desc.getClassLoader(), bundleConfig);
                     if (sym != null)
                     {
                         m_symbolicNameToBundle.put(bundle.getSymbolicName(),

@@ -50,14 +50,16 @@ class PojoSRBundleContext implements BundleContext
     private final ServiceRegistry m_reg;
     private final EventDispatcher m_dispatcher;
     private final Map<Long, Bundle> m_bundles;
+    private final Map m_config;
 
     public PojoSRBundleContext(Bundle bundle, ServiceRegistry reg,
-            EventDispatcher dispatcher, Map<Long, Bundle> bundles)
+            EventDispatcher dispatcher, Map<Long, Bundle> bundles, Map config)
     {
         m_bundle = bundle;
         m_reg = reg;
         m_dispatcher = dispatcher;
         m_bundles = bundles;
+        m_config = config;
     }
 
     public boolean ungetService(ServiceReference reference)
@@ -158,7 +160,9 @@ class PojoSRBundleContext implements BundleContext
 
     public String getProperty(String key)
     {
-        return System.getProperty(key);
+        Object result = m_config.get(key);
+
+        return result == null ? System.getProperty(key) : result.toString();
     }
 
     public File getDataFile(String filename)

@@ -71,6 +71,7 @@ class PojoSRBundle implements Bundle, BundleRevisions, BundleRevision
     volatile BundleContext m_context = null;
     private final EventDispatcher m_dispatcher;
     private final ClassLoader m_loader;
+    private final Map m_config;
 
     Revision getRevision()
     {
@@ -80,7 +81,7 @@ class PojoSRBundle implements Bundle, BundleRevisions, BundleRevision
     public PojoSRBundle(Revision revision, Map<String, String> manifest,
             Version version, String location, ServiceRegistry reg,
             EventDispatcher dispatcher, String activatorClass, long id,
-            String symbolicName, Map<Long, Bundle> bundles, ClassLoader loader)
+            String symbolicName, Map<Long, Bundle> bundles, ClassLoader loader, Map config)
     {
         m_revision = revision;
         m_manifest = manifest;
@@ -94,6 +95,7 @@ class PojoSRBundle implements Bundle, BundleRevisions, BundleRevision
         bundles.put(m_id, this);
         m_bundles = bundles;
         m_loader = loader;
+        m_config = config;
     }
 
     public int getState()
@@ -122,7 +124,7 @@ class PojoSRBundle implements Bundle, BundleRevisions, BundleRevision
             m_state = Bundle.STARTING;
 
             m_context = new PojoSRBundleContext(this, m_reg, m_dispatcher,
-                    m_bundles);
+                    m_bundles, m_config);
             m_dispatcher.fireBundleEvent(new BundleEvent(BundleEvent.STARTING,
                     this));
             if (m_activatorClass != null)
