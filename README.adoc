@@ -4,7 +4,8 @@
 
 PojoSR is service registry that enables OSGi style service registry programs without using an OSGi framework.
 
-_This is a clone of https://code.google.com/p/pojosr/_
+_This is a clone of https://code.google.com/p/pojosr/ which looks pretty much abandoned._
+
 
 == Introduction
 
