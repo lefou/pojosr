@@ -26,10 +26,11 @@ Use at your own risk.
 
 == Usage
 
-There are two ways to use pojosr:
+There are various ways to use pojosr:
 
 * As a service registry
 * As a OSGi "light" framework 
+* As a test environment to test bundle behaviour
 
 === As a Service registry
 
