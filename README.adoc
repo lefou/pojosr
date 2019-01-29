@@ -6,6 +6,8 @@ PojoSR is service registry that enables OSGi style service registry programs wit
 
 _This is a clone of https://code.google.com/p/pojosr/ which looks pretty much abandoned._
 
+Please note that PojoSR is now integrated in Apache Felix as *Felix Connect*. Unfortunately, there is almost no developement activity and also no documentation yet, so most of the docs you can find here, might help you to use Felix Connect too.
+
 
 == Introduction
 
